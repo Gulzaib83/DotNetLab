@@ -8,7 +8,9 @@ namespace ExternalEntities.Misc
 {
     [Serializable]
     public class ResponseObject<T> 
-    {   
+    {
+        public readonly bool Succeeded;
+
         public T? _data { set; get; }
         public ResultCode _code { set; get; }
         public String? _message { set; get; }

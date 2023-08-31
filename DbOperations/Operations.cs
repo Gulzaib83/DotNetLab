@@ -137,6 +137,27 @@ namespace DbOperations
             finally { }
         }
 
+        public ToDo GetToDoByIDForValidation(int Id)
+        {
+
+            try
+            {
+                var data =  Context.ToDos.Where(x => x.Id == Id).FirstOrDefault();
+
+                return data;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+
+            }
+        }
+
         public void Dispose()
         {
             ///TODO: Memory Managment

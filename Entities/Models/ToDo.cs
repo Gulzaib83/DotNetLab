@@ -10,4 +10,6 @@ public partial class ToDo
     public string Title { get; set; } = null!;
 
     public bool? IsCompleted { get; set; }
+
+    public string UserId { get; set; }
 }

@@ -2,6 +2,8 @@
 using Entities.Models;
 using ExternalEntities;
 using ExternalEntities.Misc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -11,19 +13,16 @@ using System.Runtime;
 
 namespace LabAPI.Controllers
 {
-    
+    [Authorize(Policy = "ResourceOwnershipPolicy")]
     [ApiController]
-    //[Route("api/[controller]")]
     [Route("api")]
     [Produces("application/json")]
     public class LabContoller : ControllerBase
     {
-        //private readonly ILogger<LabContoller> _logger;
         private readonly IOptions<DBSettings> _dbSettings;
 
         public LabContoller(IOptions<DBSettings> dbSettings)
         {
-            //_logger = logger;
             _dbSettings = dbSettings;
         }
 
@@ -34,7 +33,6 @@ namespace LabAPI.Controllers
 
             try
             {
-                //_logger.LogInformation("Request received at" + System.DateTime.Now);
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
                 {
                     List<ToDo> list = await op.GetAllToDos();
@@ -52,8 +50,7 @@ namespace LabAPI.Controllers
             }
             catch (Exception ex)
             {
-                result.SetResponeData(null, ResultCode.Failure, ex.Message);
-                //_logger.LogInformation(ex.Message + "\n" + ex.InnerException + "\n" + System.DateTime.Now);
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message.ToString()??ex.Message);
                 return result;
             }
         }
@@ -66,7 +63,6 @@ namespace LabAPI.Controllers
 
             try
             {
-                //_logger.LogInformation("Request received at" + System.DateTime.Now);
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
                 {
                     ToDo toDo = await op.GetToDoByID(id);
@@ -86,8 +82,7 @@ namespace LabAPI.Controllers
             }
             catch (Exception ex)
             {
-                result.SetResponeData(null, ResultCode.Failure, ex.Message);
-                //_logger.LogInformation(ex.Message + "\n" + ex.InnerException + "\n" + System.DateTime.Now);
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
                 return result;
             }
         }
@@ -99,9 +94,17 @@ namespace LabAPI.Controllers
 
             try
             {
-                //_logger.LogInformation("Request received at" + System.DateTime.Now);
-
                 ToDo toDo = new ToDo() { IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
+                
+                var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
+                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower() || claim.Value.ToLower() == "User".ToLower()))
+                {
+                    if (!ex_ToDo.UserId.Equals(string.Empty))
+                        toDo.UserId = ex_ToDo.UserId;
+                    else
+                        toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                }
+                
 
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
                 {
@@ -119,8 +122,7 @@ namespace LabAPI.Controllers
             }
             catch (Exception ex)
             {
-                result.SetResponeData(null, ResultCode.Failure, ex.Message);
-                //_logger.LogInformation(ex.Message + "\n" + ex.InnerException + "\n" + System.DateTime.Now);
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
                 return result;
             }
         }
@@ -132,16 +134,23 @@ namespace LabAPI.Controllers
 
             try
             {
-                //_logger.LogInformation("Request received at" + System.DateTime.Now);
-
                 ToDo toDo = new ToDo() {Id= ex_ToDo.Id, IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
+
+                var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
+                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower() || claim.Value.ToLower() == "User".ToLower()))
+                {
+                    if (!ex_ToDo.UserId.Equals(string.Empty))
+                        toDo.UserId = ex_ToDo.UserId;
+                    else
+                        toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                }
 
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
                 {
                     var data = await op.UpdateToDo(toDo);
                     if (data != null)
                     {
-                        Ex_ToDo ex_Td = new Ex_ToDo() { Id = data.Id, IsCompleted = data.IsCompleted, Title = data.Title };
+                        Ex_ToDo ex_Td = new Ex_ToDo() { Id = data.Id, IsCompleted = data.IsCompleted, Title = data.Title, UserId = data.UserId };
                         result.SetResponeData(ex_Td, ResultCode.Success, "ToDo Updated successfully");
                     }
                     else
@@ -152,8 +161,7 @@ namespace LabAPI.Controllers
             }
             catch (Exception ex)
             {
-                result.SetResponeData(null, ResultCode.Failure, ex.Message);
-                //_logger.LogInformation(ex.Message + "\n" + ex.InnerException + "\n" + System.DateTime.Now);
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
                 return result;
             }
         }
@@ -165,8 +173,6 @@ namespace LabAPI.Controllers
 
             try
             {
-                //_logger.LogInformation("Request received at" + System.DateTime.Now);
-
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
                 {
                     var data = await op.RemoveToDo(Id);
@@ -182,8 +188,7 @@ namespace LabAPI.Controllers
             }
             catch (Exception ex)
             {
-                result.SetResponeData(false, ResultCode.Failure, ex.Message);
-                //_logger.LogInformation(ex.Message + "\n" + ex.InnerException + "\n" + System.DateTime.Now);
+                result.SetResponeData(false, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
                 return result;
             }
         }
