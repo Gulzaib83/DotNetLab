@@ -39,7 +39,7 @@ namespace LabAPI.Controllers
                     if(list != null && list.Count> 0)
                     {
                         List<Ex_ToDo> ex_ToDos = new List<Ex_ToDo>();
-                        list.ForEach(x=> ex_ToDos.Add (new Ex_ToDo { Id = x.Id, IsCompleted = x.IsCompleted, Title = x.Title }));
+                        list.ForEach(x=> ex_ToDos.Add (new Ex_ToDo { Id = x.Id, IsCompleted = x.IsCompleted, Title = x.Title, UserId = x.UserId }));
                         result.SetResponeData(ex_ToDos, ResultCode.Success, "Todos found");
                     }
                     else
@@ -68,7 +68,7 @@ namespace LabAPI.Controllers
                     ToDo toDo = await op.GetToDoByID(id);
                     if (toDo != null)
                     {
-                        Ex_ToDo ex_ToDo = new Ex_ToDo() { Id = toDo.Id, IsCompleted = toDo.IsCompleted, Title = toDo.Title };
+                        Ex_ToDo ex_ToDo = new Ex_ToDo() { Id = toDo.Id, IsCompleted = toDo.IsCompleted, Title = toDo.Title, UserId = toDo.UserId };
 
                         result.SetResponeData(ex_ToDo, ResultCode.Success, "Todos found");
 
@@ -111,7 +111,7 @@ namespace LabAPI.Controllers
                     var data = await op.AddToDo(toDo);
                     if (data != null)
                     {
-                        Ex_ToDo ex_Td = new Ex_ToDo() { Id = data.Id, IsCompleted = data.IsCompleted, Title = data.Title }; 
+                        Ex_ToDo ex_Td = new Ex_ToDo() { Id = data.Id, IsCompleted = data.IsCompleted, Title = data.Title, UserId = data.UserId }; 
                         result.SetResponeData(ex_Td, ResultCode.Success, "ToDo inserted successfully");
                     }
                     else

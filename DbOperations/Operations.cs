@@ -8,13 +8,6 @@ namespace DbOperations
     {
         private readonly string _connectionString;
 
-        //private string _connString;
-        //public string ConnectionString
-        //{
-        //    get { return _connString; }
-        //    set { _connString = value; }
-        //}
-
         public Operations(string connString)
         {
             Context = new LabContext(connString);
