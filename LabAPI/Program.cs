@@ -33,6 +33,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = false;
+    
 })      .AddEntityFrameworkStores<LabContext>()
         .AddDefaultTokenProviders();
 

@@ -45,6 +45,24 @@ namespace LabAPI.Controllers
                     result.SetResponeData(false, ResultCode.Failure, "User Name already occupied.");
                     return StatusCode(StatusCodes.Status500InternalServerError, result);
                 }
+
+                // Implement custom password validation
+                var passwordValidator = new PasswordValidator<IdentityUser>();
+                var passwordValidationResult = await passwordValidator.ValidateAsync(this.userManager, null, user.Password);
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                foreach (var error in passwordValidationResult.Errors)
+                {
+                    stringBuilder.Append(error.Description);
+
+                }
+                if (stringBuilder.Length > 0)
+                {
+                    result.SetResponeData(false, ResultCode.Failure, stringBuilder.ToString());
+                    return StatusCode(StatusCodes.Status406NotAcceptable, result);
+                }
+
                 IdentityUser identityUser = new IdentityUser() { UserName = user.UserName, Email = user.Email, Id = user.UserID };
 
                 var hasher = new PasswordHasher<IdentityUser>();
@@ -61,21 +79,11 @@ namespace LabAPI.Controllers
                     var result1 = await this.userManager.AddToRoleAsync(identityUser, user.Role);
                 }
 
-                StringBuilder stringBuilder = new StringBuilder();
+                
 
-                foreach (var error in data.Errors)
-                {
-                    stringBuilder.Append(error);
-
-                }
-
-                if (stringBuilder.Length > 0)
-                {
-                    result.SetResponeData(false, ResultCode.Failure, stringBuilder.ToString());
-                    return StatusCode(StatusCodes.Status406NotAcceptable, result);
-                }
+                
                     
-                else result.SetResponeData(true, ResultCode.Success, "User Registered Successfully");
+                result.SetResponeData(true, ResultCode.Success, "User Registered Successfully");
             }
             catch (Exception ex)
             {
