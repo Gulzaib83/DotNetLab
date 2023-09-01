@@ -97,12 +97,16 @@ namespace LabAPI.Controllers
                 ToDo toDo = new ToDo() { IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
                 
                 var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
-                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower() || claim.Value.ToLower() == "User".ToLower()))
+                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower()))
                 {
                     if (!ex_ToDo.UserId.Equals(string.Empty))
                         toDo.UserId = ex_ToDo.UserId;
                     else
                         toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                }
+                else
+                {
+                    toDo.UserId = this.HttpContext.User.Claims.First().Value;
                 }
                 
 
@@ -137,12 +141,16 @@ namespace LabAPI.Controllers
                 ToDo toDo = new ToDo() {Id= ex_ToDo.Id, IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
 
                 var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
-                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower() || claim.Value.ToLower() == "User".ToLower()))
+                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower() ))
                 {
                     if (!ex_ToDo.UserId.Equals(string.Empty))
                         toDo.UserId = ex_ToDo.UserId;
                     else
                         toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                }
+                else
+                {
+                    toDo.UserId = this.HttpContext.User.Claims.First().Value;
                 }
 
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
