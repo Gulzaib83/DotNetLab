@@ -1,5 +1,6 @@
 ﻿using DbOperations;
 using Entities.Models;
+using Entities_ADO.Models;
 using ExternalEntities;
 using ExternalEntities.Misc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Repository.Interfaces;
 using System.Buffers;
 using System.Runtime;
 
@@ -20,10 +22,14 @@ namespace LabAPI.Controllers
     public class LabContoller : ControllerBase
     {
         private readonly IOptions<DBSettings> _dbSettings;
+        private readonly ConnectionManagement.ConnectionManager _connection;
+        private readonly Repository.Interfaces.IToDoRepository _repo;
 
-        public LabContoller(IOptions<DBSettings> dbSettings)
+        public LabContoller(IOptions<DBSettings> dbSettings, IToDoRepository repository)
         {
             _dbSettings = dbSettings;
+            //_connection = connection;
+            _repo = repository;
         }
 
         [HttpGet("ToDo")]
@@ -32,6 +38,32 @@ namespace LabAPI.Controllers
             ResponseObject<List<Ex_ToDo>> result = new ResponseObject<List<Ex_ToDo>>();
 
             try
+            {               
+                {   
+                    List<Entities_ADO.Models.ToDo> list = await _repo.GetAllToDos();
+                    if (list != null && list.Count > 0)
+                    {
+                        List<Ex_ToDo> ex_ToDos = new List<Ex_ToDo>();
+                        list.ForEach(x => ex_ToDos.Add(new Ex_ToDo { Id = x.Id, IsCompleted = x.IsCompleted, Title = x.Title, UserId = x.UserId }));
+                        result.SetResponeData(ex_ToDos, ResultCode.Success, "Todos found");
+                    }
+                    else
+                        result.SetResponeData(null, ResultCode.Success, "No record for ToDo was found");
+                }
+            }
+            catch (Exception ex)
+            {
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString() ?? ex.Message.ToString() ?? ex.Message);
+                return result;
+            }
+            finally
+            {
+
+            }
+            
+
+            return result;
+            /*try
             {
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
                 {
@@ -52,7 +84,7 @@ namespace LabAPI.Controllers
             {
                 result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message.ToString()??ex.Message);
                 return result;
-            }
+            } */
         }
 
 
@@ -60,7 +92,28 @@ namespace LabAPI.Controllers
         public async Task<ActionResult<ResponseObject<Ex_ToDo>>>GetToDo(int id)
         {
             ResponseObject<Ex_ToDo> result = new ResponseObject<Ex_ToDo>();
+            try
+            {
+                {
+                    Entities_ADO.Models.ToDo toDo = await _repo.GetToDoByID(id);
+                    if (toDo != null)
+                    {
+                        Ex_ToDo ex_ToDos = new Ex_ToDo()
+                        { Id = toDo.Id, IsCompleted = toDo.IsCompleted, Title = toDo.Title, UserId = toDo.UserId };
+                        result.SetResponeData(ex_ToDos, ResultCode.Success, "Todos found");
+                    }
+                    else
+                        result.SetResponeData(null, ResultCode.Success, "No record for ToDo was found");
+                }
 
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString() ?? ex.Message);
+                return result;
+            }
+            /*
             try
             {
                 using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
@@ -84,15 +137,51 @@ namespace LabAPI.Controllers
             {
                 result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
                 return result;
-            }
+            } */
         }
 
         [HttpPost("ToDo")]
         public async Task<ActionResult<ResponseObject<Ex_ToDo>>>AddToDo(Ex_ToDo ex_ToDo)
         {
             ResponseObject<Ex_ToDo> result = new ResponseObject<Ex_ToDo>();
-
             try
+            {
+                Entities_ADO.Models.ToDo toDo = new Entities_ADO.Models.ToDo() { IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title , UserId = ex_ToDo.UserId };
+
+                //var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
+                //if (claim != null && (claim.Value.ToLower() == "Admin".ToLower()))
+                //{
+                //    if (!ex_ToDo.UserId.Equals(string.Empty))
+                //        toDo.UserId = ex_ToDo.UserId;
+                //    else
+                //        toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                //}
+                //else
+                //{
+                //    toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                //}
+
+
+                {
+                    toDo = await _repo.AddToDo(toDo);
+                    if (toDo.Id > 0)
+                    {
+                        Ex_ToDo ex_ToDos = new Ex_ToDo()
+                        { Id = toDo.Id, IsCompleted = toDo.IsCompleted, Title = toDo.Title, UserId = toDo.UserId };
+                        result.SetResponeData(ex_ToDos, ResultCode.Success, "ToDo inserted successfully");
+                    }
+                    else
+                        result.SetResponeData(null, ResultCode.Success, "ToDo could not be added");
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString() ?? ex.Message);
+                return result;
+            }
+
+            /*try
             {
                 ToDo toDo = new ToDo() { IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
                 
@@ -128,15 +217,49 @@ namespace LabAPI.Controllers
             {
                 result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
                 return result;
-            }
+            }*/
         }
 
         [HttpPut("ToDo")]
         public async Task<ActionResult<ResponseObject<Ex_ToDo>>> UpdateToDo(Ex_ToDo ex_ToDo)
         {
             ResponseObject<Ex_ToDo> result = new ResponseObject<Ex_ToDo>();
-
             try
+            {
+                Entities_ADO.Models.ToDo toDo = new Entities_ADO.Models.ToDo() { Id = ex_ToDo.Id, IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title, UserId = ex_ToDo.UserId };
+
+                //var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
+                //if (claim != null && (claim.Value.ToLower() == "Admin".ToLower()))
+                //{
+                //    if (!ex_ToDo.UserId.Equals(string.Empty))
+                //        toDo.UserId = ex_ToDo.UserId;
+                //    else
+                //        toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                //}
+                //else
+                //{
+                //    toDo.UserId = this.HttpContext.User.Claims.First().Value;
+                //}
+
+                {
+                    toDo = await _repo.UpdateToDo(toDo);
+                    if (toDo.Id > 0)
+                    {
+                        Ex_ToDo ex_ToDos = new Ex_ToDo()
+                        { Id = toDo.Id, IsCompleted = toDo.IsCompleted, Title = toDo.Title, UserId = toDo.UserId };
+                        result.SetResponeData(ex_ToDos, ResultCode.Success, "ToDo Update successfully");
+                    }
+                    else
+                        result.SetResponeData(null, ResultCode.Success, "ToDo could not be updated");
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString() ?? ex.Message);
+                return result;
+            }
+            /*try
             {
                 ToDo toDo = new ToDo() {Id= ex_ToDo.Id, IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
 
@@ -171,34 +294,55 @@ namespace LabAPI.Controllers
             {
                 result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
                 return result;
-            }
+            }*/
         }
 
         [HttpDelete("ToDo/{Id}")]
         public async Task<ActionResult<ResponseObject<bool>>> DeleteToDo(int Id)
         {
             ResponseObject<bool> result = new ResponseObject<bool>();
-
             try
             {
-                using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
                 {
-                    var data = await op.RemoveToDo(Id);
+                    var data = await _repo.RemoveToDo(Id);
                     if (data)
-                    {                       
-                        result.SetResponeData(data, ResultCode.Success, "ToDo deleted successfully");
+                    {
+                        
+                        result.SetResponeData(true, ResultCode.Success, "ToDo deleted successfully");
                     }
                     else
-                        result.SetResponeData(data, ResultCode.Failure, "ToDo could not be deletd");
-
-                    return result;
+                        result.SetResponeData(false, ResultCode.Success, "ToDo could not be deletd");
                 }
+                return result;
             }
             catch (Exception ex)
             {
-                result.SetResponeData(false, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
+                result.SetResponeData(false, ResultCode.Failure, ex.InnerException.ToString() ?? ex.Message);
+                return result;
+            }
+
+        }
+
+        /*try
+        {
+            using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
+            {
+                var data = await op.RemoveToDo(Id);
+                if (data)
+                {                       
+                    result.SetResponeData(data, ResultCode.Success, "ToDo deleted successfully");
+                }
+                else
+                    result.SetResponeData(data, ResultCode.Failure, "ToDo could not be deletd");
+
                 return result;
             }
         }
+        catch (Exception ex)
+        {
+            result.SetResponeData(false, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
+            return result;
+        }*/
+    //}
     }
 }

@@ -3,13 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbOperations", "DbOperations\DbOperations.csproj", "{F06653C5-4DE3-4F84-9F30-22D4CC692223}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbOperations", "DbOperations\DbOperations.csproj", "{F06653C5-4DE3-4F84-9F30-22D4CC692223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{D081EC47-908A-45E4-A0C7-2A087716EE7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entities.csproj", "{D081EC47-908A-45E4-A0C7-2A087716EE7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalEntities", "ExternalEntities\ExternalEntities.csproj", "{997A3B0F-1B7B-42C1-912F-C4C0ABAA7E21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalEntities", "ExternalEntities\ExternalEntities.csproj", "{997A3B0F-1B7B-42C1-912F-C4C0ABAA7E21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabAPI", "LabAPI\LabAPI.csproj", "{B29C7879-515C-42B5-A9E4-31FB25FB66CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LabAPI", "LabAPI\LabAPI.csproj", "{B29C7879-515C-42B5-A9E4-31FB25FB66CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities_ADO", "Entities_ADO\Entities_ADO.csproj", "{C737DAC4-1AE8-4A03-AA32-083CD4138279}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbOperations_ADO", "DbOperations_ADO\DbOperations_ADO.csproj", "{7FFB623C-D709-4AF2-AF9C-1573FA1E6D37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{67EE3FC0-FE1E-46DF-9EBB-8BD78E1C383D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectionManagement", "ConnectionManagement\ConnectionManagement.csproj", "{90362B5C-3A9D-4BA3-894A-042F9DBB3691}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +41,22 @@ Global
 		{B29C7879-515C-42B5-A9E4-31FB25FB66CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B29C7879-515C-42B5-A9E4-31FB25FB66CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B29C7879-515C-42B5-A9E4-31FB25FB66CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C737DAC4-1AE8-4A03-AA32-083CD4138279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C737DAC4-1AE8-4A03-AA32-083CD4138279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C737DAC4-1AE8-4A03-AA32-083CD4138279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C737DAC4-1AE8-4A03-AA32-083CD4138279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FFB623C-D709-4AF2-AF9C-1573FA1E6D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FFB623C-D709-4AF2-AF9C-1573FA1E6D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FFB623C-D709-4AF2-AF9C-1573FA1E6D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FFB623C-D709-4AF2-AF9C-1573FA1E6D37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67EE3FC0-FE1E-46DF-9EBB-8BD78E1C383D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67EE3FC0-FE1E-46DF-9EBB-8BD78E1C383D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67EE3FC0-FE1E-46DF-9EBB-8BD78E1C383D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67EE3FC0-FE1E-46DF-9EBB-8BD78E1C383D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90362B5C-3A9D-4BA3-894A-042F9DBB3691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90362B5C-3A9D-4BA3-894A-042F9DBB3691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90362B5C-3A9D-4BA3-894A-042F9DBB3691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90362B5C-3A9D-4BA3-894A-042F9DBB3691}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -77,12 +77,7 @@ namespace LabAPI.Controllers
                     //await signInManager.SignInAsync(identityUser, isPersistent: false);
 
                     var result1 = await this.userManager.AddToRoleAsync(identityUser, user.Role);
-                }
-
-                
-
-                
-                    
+                }   
                 result.SetResponeData(true, ResultCode.Success, "User Registered Successfully");
             }
             catch (Exception ex)
@@ -90,8 +85,6 @@ namespace LabAPI.Controllers
                 result.SetResponeData(false, ResultCode.Failure, ex.Message);
                 return StatusCode(StatusCodes.Status417ExpectationFailed, result);
             }
-            
-
             return Ok(result);
         }
 
