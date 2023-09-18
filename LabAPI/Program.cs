@@ -1,5 +1,6 @@
 using DbOperations_ADO;
 using Entities.Models;
+using ExternalEntities;
 using ExternalEntities.Misc;
 using LabAPI;
 using LabAPI.Filters;
@@ -94,7 +95,15 @@ builder.Services.Configure<IISServerOptions>(options =>
     options.AllowSynchronousIO = true;
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<Ex_ToDo>());
+    options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<List<Ex_ToDo>>());
+    options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<Boolean>());
+    options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<EX_Login>());
+    options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<EX_TokenResult>());
+    
+}); 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -1,4 +1,5 @@
 ﻿using Entities_ADO.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,5 +21,7 @@ namespace Repository.Interfaces
         public Task<bool> RemoveToDo(int Id);
 
         public ToDo GetToDoByIDForValidation(int Id);
+
+        //public Task<List<ToDo>> UploadFile(IFormFile file);
     }
 }

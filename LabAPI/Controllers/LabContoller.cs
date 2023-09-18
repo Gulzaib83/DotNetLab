@@ -7,10 +7,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 using Repository.Interfaces;
 using System.Buffers;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime;
 
 namespace LabAPI.Controllers
@@ -18,7 +22,7 @@ namespace LabAPI.Controllers
     [Authorize(Policy = "ResourceOwnershipPolicy")]
     [ApiController]
     [Route("api")]
-    [Produces("application/json")]
+    //[Produces("application/json")]
     public class LabContoller : ControllerBase
     {
         private readonly IOptions<DBSettings> _dbSettings;
@@ -63,28 +67,6 @@ namespace LabAPI.Controllers
             
 
             return result;
-            /*try
-            {
-                using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
-                {
-                    List<ToDo> list = await op.GetAllToDos();
-                    if(list != null && list.Count> 0)
-                    {
-                        List<Ex_ToDo> ex_ToDos = new List<Ex_ToDo>();
-                        list.ForEach(x=> ex_ToDos.Add (new Ex_ToDo { Id = x.Id, IsCompleted = x.IsCompleted, Title = x.Title, UserId = x.UserId }));
-                        result.SetResponeData(ex_ToDos, ResultCode.Success, "Todos found");
-                    }
-                    else
-                        result.SetResponeData(null, ResultCode.Success, "No record for ToDo was found");
-
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message.ToString()??ex.Message);
-                return result;
-            } */
         }
 
 
@@ -113,31 +95,6 @@ namespace LabAPI.Controllers
                 result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString() ?? ex.Message);
                 return result;
             }
-            /*
-            try
-            {
-                using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
-                {
-                    ToDo toDo = await op.GetToDoByID(id);
-                    if (toDo != null)
-                    {
-                        Ex_ToDo ex_ToDo = new Ex_ToDo() { Id = toDo.Id, IsCompleted = toDo.IsCompleted, Title = toDo.Title, UserId = toDo.UserId };
-
-                        result.SetResponeData(ex_ToDo, ResultCode.Success, "Todos found");
-
-                    }
-                    else
-                    {
-                        result.SetResponeData(null, ResultCode.Success, String.Format("No record for ToDo was found with provide id {0}", id));
-                    }
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
-                return result;
-            } */
         }
 
         [HttpPost("ToDo")]
@@ -181,43 +138,6 @@ namespace LabAPI.Controllers
                 return result;
             }
 
-            /*try
-            {
-                ToDo toDo = new ToDo() { IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
-                
-                var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
-                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower()))
-                {
-                    if (!ex_ToDo.UserId.Equals(string.Empty))
-                        toDo.UserId = ex_ToDo.UserId;
-                    else
-                        toDo.UserId = this.HttpContext.User.Claims.First().Value;
-                }
-                else
-                {
-                    toDo.UserId = this.HttpContext.User.Claims.First().Value;
-                }
-                
-
-                using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
-                {
-                    var data = await op.AddToDo(toDo);
-                    if (data != null)
-                    {
-                        Ex_ToDo ex_Td = new Ex_ToDo() { Id = data.Id, IsCompleted = data.IsCompleted, Title = data.Title, UserId = data.UserId }; 
-                        result.SetResponeData(ex_Td, ResultCode.Success, "ToDo inserted successfully");
-                    }
-                    else
-                        result.SetResponeData(null, ResultCode.Failure, "ToDo could not be added");
-
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
-                return result;
-            }*/
         }
 
         [HttpPut("ToDo")]
@@ -259,42 +179,6 @@ namespace LabAPI.Controllers
                 result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString() ?? ex.Message);
                 return result;
             }
-            /*try
-            {
-                ToDo toDo = new ToDo() {Id= ex_ToDo.Id, IsCompleted = ex_ToDo.IsCompleted, Title = ex_ToDo.Title };
-
-                var claim = this.HttpContext.User.Claims.Where(x => x.Type == "Role").FirstOrDefault();
-                if (claim != null && (claim.Value.ToLower() == "Admin".ToLower() ))
-                {
-                    if (!ex_ToDo.UserId.Equals(string.Empty))
-                        toDo.UserId = ex_ToDo.UserId;
-                    else
-                        toDo.UserId = this.HttpContext.User.Claims.First().Value;
-                }
-                else
-                {
-                    toDo.UserId = this.HttpContext.User.Claims.First().Value;
-                }
-
-                using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
-                {
-                    var data = await op.UpdateToDo(toDo);
-                    if (data != null)
-                    {
-                        Ex_ToDo ex_Td = new Ex_ToDo() { Id = data.Id, IsCompleted = data.IsCompleted, Title = data.Title, UserId = data.UserId };
-                        result.SetResponeData(ex_Td, ResultCode.Success, "ToDo Updated successfully");
-                    }
-                    else
-                        result.SetResponeData(null, ResultCode.Failure, "ToDo could not be Updated");
-
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.SetResponeData(null, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
-                return result;
-            }*/
         }
 
         [HttpDelete("ToDo/{Id}")]
@@ -323,26 +207,51 @@ namespace LabAPI.Controllers
 
         }
 
-        /*try
+        [HttpPost("Upload")]
+        [DisableRequestSizeLimit]
+        public async Task<ActionResult<ResponseObject<bool>>> UploadFile()
         {
-            using (Operations op = new Operations(_dbSettings.Value.ConnectionString))
+            ResponseObject<bool> result = new ResponseObject<bool>();
+            try
             {
-                var data = await op.RemoveToDo(Id);
-                if (data)
-                {                       
-                    result.SetResponeData(data, ResultCode.Success, "ToDo deleted successfully");
-                }
-                else
-                    result.SetResponeData(data, ResultCode.Failure, "ToDo could not be deletd");
+                var file = Request.Form.Files[0];
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = new MemoryStream())
+                    {
 
-                return result;
+                        await file.CopyToAsync(stream);
+                        stream.Position = 0;
+                        var workbook = new XSSFWorkbook(stream); // For .xlsx files
+
+                        ISheet sheet = workbook.GetSheetAt(0);
+                        int rowCount = sheet.PhysicalNumberOfRows;
+
+                        for (int row = 1; row < rowCount; row++)
+                        {
+                            IRow dataRow = sheet.GetRow(row);
+
+                            var data = new Entities_ADO.Models.ToDo()
+                            {
+                                Title = dataRow.GetCell(1).ToString(),
+                                IsCompleted = Convert.ToBoolean(dataRow.GetCell(2).ToString()),
+                                UserId = dataRow.GetCell(3).ToString()
+                            };
+
+                            _repo.AddToDo(data);
+                        }
+
+                        result.SetResponeData(true, ResultCode.Success, "Data uploaded successfully");
+
+                    }
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            result.SetResponeData(false, ResultCode.Failure, ex.InnerException.ToString()??ex.Message);
+            catch(Exception ex)
+            {
+                result.SetResponeData(false, ResultCode.Failure, ex.InnerException.ToString());
+            }
             return result;
-        }*/
-    //}
+        }
+
     }
 }
