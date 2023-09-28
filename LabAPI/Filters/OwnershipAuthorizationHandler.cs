@@ -1,12 +1,18 @@
 ﻿using Azure.Core;
+using ConnectionManagement;
 using DbOperations;
 using Entities.Models;
+using Entities_ADO.Models;
 using ExternalEntities;
+using ExternalEntities.Misc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using Repository.Interfaces;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -17,14 +23,22 @@ namespace LabAPI.Filters
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public OwnershipAuthorizationHandler(IHttpContextAccessor httpContextAccessor)
+        private readonly IOptions<DBSettings> _dbSettings;
+        private readonly ConnectionManagement.ConnectionManager _connection;
+        private readonly Repository.Interfaces.IToDoRepository _repo;
+
+        public OwnershipAuthorizationHandler(IHttpContextAccessor httpContextAccessor, IOptions<DBSettings> dbSettings, ConnectionManager connection, IToDoRepository repository)
         {
             _httpContextAccessor = httpContextAccessor;
+            _dbSettings = dbSettings;
+            _connection = connection;
+            _repo = repository;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ResourceOwnershipRequirement requirement)
         {
-
+            //const string HeaderKeyName = "Authorization";
+            ///_httpContextAccessor.HttpContext.Request.Headers.TryGetValue(HeaderKeyName, out StringValues headerValue);
             if (context.User.Claims.Count() < 1)
             {
                 return Task.CompletedTask;
@@ -38,9 +52,7 @@ namespace LabAPI.Filters
             else
             {
                 int id =0;
-                //BAD Idea, but need to be resolved later
-                string ConnectionString = @"Data Source=.;Initial Catalog=Lab;Integrated Security=True;Encrypt=False";
-
+                
                 if (_httpContextAccessor.HttpContext.Request.Method == HttpMethod.Get.Method ||
                     _httpContextAccessor.HttpContext.Request.Method == HttpMethod.Delete.Method)
                 {
@@ -71,18 +83,19 @@ namespace LabAPI.Filters
                     _httpContextAccessor.HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
                 }
 
-                using (Operations op = new Operations(ConnectionString))
+                //using (var connection = _connection.GetConnection())
                 {
-                    ToDo toDo = op.GetToDoByIDForValidation(id);
-                    var userId = context.User.Claims.Where(x => x.Type == "Id").First();
+                    //var connection = _connection.GetConnection();
+                    Entities_ADO.Models.ToDo toDo = _repo.GetToDoByIDForValidation(id);
+                    //connection.Close();
+                    var userId = _httpContextAccessor.HttpContext.User.Claims.Where(x => x.Type == "Id").First();
 
                     if (toDo == null)
                     {
                         context.Succeed(requirement);
                         return Task.CompletedTask;
                     }
-                        
-                    
+
                     if (toDo.UserId.ToLower().Equals(userId.Value.ToString().ToLower()))
                     {
                         context.Succeed(requirement);
@@ -91,6 +104,26 @@ namespace LabAPI.Filters
                     else
                         context.Fail();
                 }
+                //using (Operations op = new Operations(ConnectionString))
+                //{
+                //    Entities.Models.ToDo toDo = op.GetToDoByIDForValidation(id);
+                //    var userId = context.User.Claims.Where(x => x.Type == "Id").First();
+
+                //    if (toDo == null)
+                //    {
+                //        context.Succeed(requirement);
+                //        return Task.CompletedTask;
+                //    }
+
+
+                //    if (toDo.UserId.ToLower().Equals(userId.Value.ToString().ToLower()))
+                //    {
+                //        context.Succeed(requirement);
+                //        return Task.CompletedTask;
+                //    }
+                //    else
+                //        context.Fail();
+                //}
             }
             return Task.CompletedTask;
         }
