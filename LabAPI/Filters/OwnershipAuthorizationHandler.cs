@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Repository.Interfaces;
 using System.Net.Http;
@@ -36,7 +37,8 @@ namespace LabAPI.Filters
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ResourceOwnershipRequirement requirement)
         {
-
+            //const string HeaderKeyName = "Authorization";
+            ///_httpContextAccessor.HttpContext.Request.Headers.TryGetValue(HeaderKeyName, out StringValues headerValue);
             if (context.User.Claims.Count() < 1)
             {
                 return Task.CompletedTask;
@@ -50,9 +52,7 @@ namespace LabAPI.Filters
             else
             {
                 int id =0;
-                //BAD Idea, but need to be resolved later
-                //string ConnectionString = @"Data Source=.;Initial Catalog=Lab;Integrated Security=True;Encrypt=False";
-
+                
                 if (_httpContextAccessor.HttpContext.Request.Method == HttpMethod.Get.Method ||
                     _httpContextAccessor.HttpContext.Request.Method == HttpMethod.Delete.Method)
                 {
@@ -88,7 +88,7 @@ namespace LabAPI.Filters
                     //var connection = _connection.GetConnection();
                     Entities_ADO.Models.ToDo toDo = _repo.GetToDoByIDForValidation(id);
                     //connection.Close();
-                    var userId = context.User.Claims.Where(x => x.Type == "Id").First();
+                    var userId = _httpContextAccessor.HttpContext.User.Claims.Where(x => x.Type == "Id").First();
 
                     if (toDo == null)
                     {

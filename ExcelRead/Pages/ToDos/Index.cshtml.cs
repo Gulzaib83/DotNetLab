@@ -12,6 +12,7 @@ using System.Net.Mail;
 
 namespace ExcelRead.Pages.ToDos
 {
+    [IgnoreAntiforgeryToken]
     public class IndexModel : PageModel
     {
         public int PageIndex { get; set; } = 1;
@@ -38,19 +39,25 @@ namespace ExcelRead.Pages.ToDos
         public List<Ex_ToDo> AllToDos { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? pageIndex, string searchString, string currentFilter)
-        {
-            var jwtToken = Request.Cookies["JwtToken"];
+        {           
             
-            var apiClient = _clientFactory.CreateClient();
-            var apiUrl = "http://localhost:5299/api/ToDo/";
 
-            if (!string.IsNullOrEmpty(jwtToken))
+            var JwtToken = HttpContext.Session.GetString("jwtToken");
+
+            var apiClient = _clientFactory.CreateClient();
+
+
+
+            if (!string.IsNullOrEmpty(JwtToken))
             {
-                apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+                //request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", JwtToken);
+                //apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", JwtToken);
+                apiClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JwtToken);
+
             }
             try
             {
-                var response = await apiClient.GetAsync(apiUrl);
+                var response = await apiClient.GetAsync("https://localhost:7299/api/ToDo/");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -113,13 +120,13 @@ namespace ExcelRead.Pages.ToDos
                 }
                 else
                 {
-                    
+
                 }
                 return Page();
             }
             catch (Exception ex)
             {
-                
+
                 return Page();
             }
         }

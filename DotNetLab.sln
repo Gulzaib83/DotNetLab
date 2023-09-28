@@ -19,7 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectionManagement", "ConnectionManagement\ConnectionManagement.csproj", "{90362B5C-3A9D-4BA3-894A-042F9DBB3691}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelRead", "ExcelRead\ExcelRead.csproj", "{83426F22-EAC4-4765-91A9-AFB2D870D592}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelRead", "ExcelRead\ExcelRead.csproj", "{83426F22-EAC4-4765-91A9-AFB2D870D592}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSLambdaAPI", "AWSLambdaAPI\AWSLambdaAPI.csproj", "{C4DB8C9F-87E4-461A-A5A6-C57F0C2DFEF8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSLambdaS3Trigger", "AWSLambdaS3Trigger\AWSLambdaS3Trigger.csproj", "{C1A54D42-CB57-45DA-A359-96153D956B75}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +67,14 @@ Global
 		{83426F22-EAC4-4765-91A9-AFB2D870D592}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83426F22-EAC4-4765-91A9-AFB2D870D592}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83426F22-EAC4-4765-91A9-AFB2D870D592}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4DB8C9F-87E4-461A-A5A6-C57F0C2DFEF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4DB8C9F-87E4-461A-A5A6-C57F0C2DFEF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4DB8C9F-87E4-461A-A5A6-C57F0C2DFEF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4DB8C9F-87E4-461A-A5A6-C57F0C2DFEF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1A54D42-CB57-45DA-A359-96153D956B75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1A54D42-CB57-45DA-A359-96153D956B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1A54D42-CB57-45DA-A359-96153D956B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1A54D42-CB57-45DA-A359-96153D956B75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

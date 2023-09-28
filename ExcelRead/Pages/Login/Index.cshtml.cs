@@ -1,5 +1,6 @@
 using ExternalEntities;
 using ExternalEntities.Misc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Http;
@@ -20,6 +21,9 @@ namespace ExcelRead.Pages.Login
         [BindProperty]
         public EX_Login Login { get; set; } = default!;
 
+        [TempData]
+        public string StatusMessage { get; set; }
+
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             //if (ModelState.IsValid)
@@ -39,16 +43,19 @@ namespace ExcelRead.Pages.Login
                     ResponseObjectConverter<EX_TokenResult> converter = new ResponseObjectConverter<EX_TokenResult>();
                     var data = JsonSerializer.Deserialize<ResponseObject<EX_TokenResult>>(jsonContent, new JsonSerializerOptions { Converters = { converter } });
 
-                    // Store the JWT token in a secure HttpOnly cookie
-                    Response.Cookies.Append("JwtToken", data._data.Token, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true, // In production, use HTTPS
-                        Expires = DateTimeOffset.UtcNow.AddMinutes(5) // Set an appropriate expiration time
-                    });
+                    HttpContext.Session.SetString("jwtToken", data._data.Token.TrimEnd());
 
                     // Redirect to the desired page
                     return RedirectToPage(returnUrl ?? "/Index");
+                }
+                else
+                {
+                    var jsonContent = await response.Content.ReadAsStringAsync();
+                    ResponseObjectConverter<EX_TokenResult> converter = new ResponseObjectConverter<EX_TokenResult>();
+                    var data = JsonSerializer.Deserialize<ResponseObject<EX_TokenResult>>(jsonContent, new JsonSerializerOptions { Converters = { converter } });
+
+
+                    StatusMessage = data._message;
                 }
             }
 

@@ -1,0 +1,48 @@
+﻿@page
+@model ExcelRead.Pages.Login.RegisterUserModel
+@{
+    ViewData["Title"] = "Register User";
+}
+
+
+<div class="text-center">
+    <h1 class="display-4">New User</h1>
+</div>
+<div class="d-none">
+    <input asp-for="StatusMessage" />
+</div>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="UserRegister.Email"></label>
+        <input asp-for="UserRegister.Email" class="form-control" />
+        <span asp-validation-for="UserRegister.Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="UserRegister.UserName"></label>
+        <input asp-for="UserRegister.UserName" class="form-control" />
+        <span asp-validation-for="UserRegister.UserName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="UserRegister.UserID"></label>
+        <input asp-for="UserRegister.UserID" class="form-control" />
+        <span asp-validation-for="UserRegister.UserID" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="UserRegister.Password"></label>
+        <input asp-for="UserRegister.Password" type="password"  class="form-control" />
+        <span asp-validation-for="UserRegister.Password" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+
+@if (Model.StatusMessage != string.Empty)
+{
+    <script type="text/javascript">
+        window.onload = function () {
+            alert(@Model.StatusMessage);
+        };
+    </script>
+}
+

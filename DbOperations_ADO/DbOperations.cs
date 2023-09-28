@@ -1,6 +1,7 @@
 ﻿using ConnectionManagement;
 using Entities_ADO.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -53,12 +54,25 @@ namespace DbOperations_ADO
                     IsComplete.Value = toDo.IsCompleted;
                     command.Parameters.Add(IsComplete);
 
-                    SqlParameter UserId = new SqlParameter();
-                    UserId.ParameterName = "@UserId";
-                    UserId.SqlDbType = SqlDbType.NVarChar;
-                    UserId.Direction = ParameterDirection.Input;
-                    UserId.Value = toDo.UserId;
-                    command.Parameters.Add(UserId);
+                    if(!toDo.UserId.IsNullOrEmpty())
+                    {
+                        SqlParameter UserId = new SqlParameter();
+                        UserId.ParameterName = "@UserId";
+                        UserId.SqlDbType = SqlDbType.NVarChar;
+                        UserId.Direction = ParameterDirection.Input;
+                        UserId.Value = toDo.UserId;
+                        command.Parameters.Add(UserId);
+                    }
+                    else
+                    {
+                        SqlParameter Owner = new SqlParameter();
+                        Owner.ParameterName = "@Owner";
+                        Owner.SqlDbType = SqlDbType.Int;
+                        Owner.Direction = ParameterDirection.Input;
+                        Owner.Value = toDo.Owner;
+                        command.Parameters.Add(Owner);
+                    }
+                    
 
                     command.ExecuteNonQuery();
                    

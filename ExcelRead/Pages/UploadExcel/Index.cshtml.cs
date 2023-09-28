@@ -52,7 +52,7 @@ namespace ExcelRead.Pages.UploadExcel
             var response = await apiClient.PostAsync("http://localhost:5299/api/Upload/", multipartContent);
 
 
-            return RedirectToPage("/V2/index");
+            return RedirectToPage("/ToDos/index");
         }
     }
 }

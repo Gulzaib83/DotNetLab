@@ -70,7 +70,9 @@ builder.Services.AddAuthentication(options => {
         ValidateAudience = false,
         RequireExpirationTime = true,
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
+        RoleClaimType = "Role",
+        NameClaimType = "Id",
     };
 });
 
@@ -100,9 +102,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<Ex_ToDo>());
     options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<List<Ex_ToDo>>());
     options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<Boolean>());
+    options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<string>());
     options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<EX_Login>());
     options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<EX_TokenResult>());
-    
+    options.JsonSerializerOptions.Converters.Add(new ResponseObjectConverter<EX_UserRegister>()); 
 }); 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

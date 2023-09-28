@@ -15,5 +15,7 @@ namespace Entities_ADO.Models
         public bool? IsCompleted { get; set; }
 
         public string UserId { get; set; }
+
+        public int? Owner { get; set; }
     }
 }

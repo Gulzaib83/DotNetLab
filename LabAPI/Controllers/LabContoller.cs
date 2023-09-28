@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -19,7 +21,7 @@ using System.Runtime;
 
 namespace LabAPI.Controllers
 {
-    [Authorize(Policy = "ResourceOwnershipPolicy")]
+    //[Authorize(Policy = "ResourceOwnershipPolicy")]
     [ApiController]
     [Route("api")]
     //[Produces("application/json")]
@@ -43,7 +45,10 @@ namespace LabAPI.Controllers
 
             try
             {               
-                {   
+                {
+                    const string HeaderKeyName = "HeaderKey";
+                    Request.Headers.TryGetValue(HeaderKeyName, out StringValues headerValue);
+
                     List<Entities_ADO.Models.ToDo> list = await _repo.GetAllToDos();
                     if (list != null && list.Count > 0)
                     {
@@ -238,7 +243,16 @@ namespace LabAPI.Controllers
                                 UserId = dataRow.GetCell(3).ToString()
                             };
 
-                            _repo.AddToDo(data);
+                            //using (var connection = new SqlConnection(_dbConnectionString))
+                            //{
+                            //    await connection.OpenAsync();
+
+                            //    using (var command = new SqlCommand("INSERT INTO YourTableName (FileContent) VALUES (@FileContent)", connection))
+                            //    {
+                            //        command.Parameters.AddWithValue("@FileContent", fileContent);
+                            //        await command.ExecuteNonQuery();
+                            //    }
+                            //}
                         }
 
                         result.SetResponeData(true, ResultCode.Success, "Data uploaded successfully");
