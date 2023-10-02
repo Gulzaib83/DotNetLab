@@ -145,13 +145,17 @@ public class Function
         }
     }
 
-    static async Task<bool> Put(string bucket, string key, XSSFWorkbook workBook)
+    async Task<bool> Put(string bucket, string key, XSSFWorkbook workBook)
     {
         try
         {
-            var S3client = new AmazonS3Client();
+            SecretManagerUtility secretManager = new SecretManagerUtility();
+            String AccessKey = await secretManager.GetSecretValue("AccessKey");
+            String AccessSecret = await secretManager.GetSecretValue("SecretKey");
 
-            bool Bucket = await AmazonS3Util.DoesS3BucketExistV2Async(S3client, bucket);
+            var S3Client = new AmazonS3Client(AccessKey, AccessSecret);
+
+            bool Bucket = await AmazonS3Util.DoesS3BucketExistV2Async(S3Client, bucket);
             if (!Bucket)
             {
                 var bucketRequest = new PutBucketRequest()
@@ -160,7 +164,7 @@ public class Function
                     UseClientRegion = true,
                 };
 
-                await S3client.PutBucketAsync(bucketRequest);
+                await this.S3Client.PutBucketAsync(bucketRequest);
             }
 
             using (var stream = new MemoryStream())
@@ -183,7 +187,7 @@ public class Function
                     InputStream = stream
                 };
 
-                await S3client.PutObjectAsync(ObjectRequest);            
+                await S3Client.PutObjectAsync(ObjectRequest);            
             }
             return true;
         }
