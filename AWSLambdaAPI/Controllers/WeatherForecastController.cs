@@ -26,13 +26,15 @@ namespace AWSLambdaAPI.Controllers
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
-        private readonly ILogger<WeatherForecastController> _logger;
-        
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IOptions<DBSettings> dbSettings, IToDoRepository repository)
+        private readonly ILogger<WeatherForecastController> _Logger;
+        private readonly IOptions<DBSettings> _DbSettings;
+        private readonly Repository.Interfaces.IToDoRepository _Repo;
+
+        public WeatherForecastController(ILogger<WeatherForecastController> Logger, IOptions<DBSettings> DbSettings, IToDoRepository Repository)
         {
-            //_dbSettings = dbSettings;
-            //_repo = repository;
-            _logger = logger;
+            _DbSettings = DbSettings;
+            _Repo = Repository;
+            _Logger = Logger;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]

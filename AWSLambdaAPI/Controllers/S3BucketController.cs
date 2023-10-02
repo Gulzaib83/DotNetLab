@@ -19,73 +19,72 @@ namespace AWSLambdaAPI.Controllers
     [ApiController]
     public class S3BucketController : ControllerBase
     {
-        private string bucketName = "task6.s3bucket";
+        private const string _BucketName = "task6.s3bucket";
 
-        private readonly IOptions<DBSettings> _dbSettings;
-        private readonly Repository.Interfaces.IToDoRepository _repo;
+        private readonly IOptions<DBSettings> _DbSettings;
+        private readonly Repository.Interfaces.IToDoRepository _Repo;
 
         public S3BucketController(IOptions<DBSettings> dbSettings, IToDoRepository repository)
         {
-            _dbSettings = dbSettings;
-            _repo = repository;
+            _DbSettings = dbSettings;
+            _Repo = repository;
         }
 
         [HttpPost]
         public async Task Post(IFormFile file)
         {
-            var S3client = new AmazonS3Client();
+                var S3client = new AmazonS3Client();
 
-            bool bucket = await AmazonS3Util.DoesS3BucketExistV2Async(S3client, bucketName);
-            if (!bucket)
-            {
-                var bucketRequest = new PutBucketRequest()
+                bool Bucket = await AmazonS3Util.DoesS3BucketExistV2Async(S3client, _BucketName);
+                if (!Bucket)
                 {
-                    BucketName = bucketName,
-                    UseClientRegion = true,
+                    var bucketRequest = new PutBucketRequest()
+                    {
+                        BucketName = _BucketName,
+                        UseClientRegion = true,
+                    };
+
+                    await S3client.PutBucketAsync(bucketRequest);
+                }
+
+                var ObjectRequest = new PutObjectRequest()
+                {
+                    BucketName = _BucketName,
+                    Key = file.FileName,
+                    InputStream = file.OpenReadStream(),
+
                 };
 
-                await S3client.PutBucketAsync(bucketRequest);
-            }
-
-            var objectRequest = new PutObjectRequest()
-            {
-                BucketName = bucketName,
-                Key = file.FileName,
-                //ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                InputStream = file.OpenReadStream(),
-
-            };
-
-            await S3client.PutObjectAsync(objectRequest);
+                await S3client.PutObjectAsync(ObjectRequest);
 
         }
 
         [HttpGet("GetFile")]
         public async Task<IActionResult> GetFile(string fileName)
         {
-            var s3Client = new AmazonS3Client();
+            var S3client = new AmazonS3Client();
 
-            GetObjectRequest request = new GetObjectRequest
+            GetObjectRequest Request = new GetObjectRequest
             {
-                BucketName = bucketName,
+                BucketName = _BucketName,
                 Key = fileName
             };
 
-            var response = await s3Client.GetObjectAsync(request);
+            var Response = await S3client.GetObjectAsync(Request);
 
             using (var stream = new MemoryStream())
             {
 
-                await response.ResponseStream.CopyToAsync(stream);
+                await Response.ResponseStream.CopyToAsync(stream);
                 stream.Position = 0;
-                var workbook = new XSSFWorkbook(stream); // For .xlsx files
+                var Workbook = new XSSFWorkbook(stream); // For .xlsx files
 
-                ISheet sheet = workbook.GetSheetAt(0);
-                int rowCount = sheet.PhysicalNumberOfRows;
+                ISheet Sheet = Workbook.GetSheetAt(0);
+                int rowCount = Sheet.PhysicalNumberOfRows;
 
                 for (int row = 1; row < rowCount; row++)
                 {
-                    IRow dataRow = sheet.GetRow(row);
+                    IRow dataRow = Sheet.GetRow(row);
 
                     var data = new Entities_ADO.Models.ToDo()
                     {
@@ -94,7 +93,7 @@ namespace AWSLambdaAPI.Controllers
                         Owner = Convert.ToInt32(dataRow.GetCell(3).ToString())
                     };
 
-                    var result = await _repo.AddToDo(data);
+                    var Result = await _Repo.AddToDo(data);
                 }
                 return Ok();
             }
@@ -104,23 +103,23 @@ namespace AWSLambdaAPI.Controllers
         [HttpGet("GetFileLocal")]
         public async Task<IActionResult> GetFileLocal(string fileName)
         {
-            var s3Client = new AmazonS3Client();
+            var S3Client = new AmazonS3Client();
 
-            GetObjectRequest request = new GetObjectRequest
+            GetObjectRequest Request = new GetObjectRequest
             {
-                BucketName = bucketName,
+                BucketName = _BucketName,
                 Key = fileName
             };
 
-            var response = await s3Client.GetObjectAsync(request);
+            var Response = await S3Client.GetObjectAsync(Request);
 
             using (FileStream stream = new FileStream("..//" + "ToDosFromS3-" + $"{DateTime.Now:yyyyMMddhhmm}.xlsx", FileMode.Create, FileAccess.Write))
             {
-                IWorkbook workbook = new XSSFWorkbook();
+                IWorkbook Workbook = new XSSFWorkbook();
 
-                await response.ResponseStream.CopyToAsync(stream);
+                await Response.ResponseStream.CopyToAsync(stream);
                 stream.Position = 0;
-                workbook.Write(stream);
+                Workbook.Write(stream);
             }
 
             return Ok();

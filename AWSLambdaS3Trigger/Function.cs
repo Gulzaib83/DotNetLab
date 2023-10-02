@@ -2,11 +2,14 @@ using Amazon;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.S3Events;
 using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.S3.Util;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Microsoft.Data.SqlClient;
+using NPOI.POIFS.Crypt.Dsig;
 using NPOI.SS.UserModel;
+using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using System.Collections.Generic;
 using System.Data;
@@ -48,6 +51,7 @@ public class Function
     /// <returns></returns>
     public async Task FunctionHandler(S3Event evnt, ILambdaContext context)
     {
+        SecretManagerUtility secretManager = new SecretManagerUtility();
         var eventRecords = evnt.Records ?? new List<S3Event.S3EventNotificationRecord>();
         foreach (var record in eventRecords)
         {
@@ -59,12 +63,12 @@ public class Function
 
             try
             {
-                //String RDSConnectionString = await GetSecret();
-
+                String SecretName = "DbSettings"; //ToDo: Implement Options Pattern to get all secret
+                String RDSConnectionString = await secretManager.GetSecretValue(SecretName);
                 var response = await this.S3Client.GetObjectAsync(s3Event.Bucket.Name, s3Event.Object.Key);
+
                 using (var stream = new MemoryStream())
                 {
-
                     await response.ResponseStream.CopyToAsync(stream);
                     stream.Position = 0;
                     var workbook = new XSSFWorkbook(stream); // For .xlsx files
@@ -83,7 +87,7 @@ public class Function
                             Owner = Convert.ToInt32(dataRow.GetCell(3).ToString())
                         };
 
-                        var sqlConnection = new SqlConnection("server=myrds.c43r0x0dmovz.us-east-1.rds.amazonaws.com,1433;Initial Catalog=Lab_RDS;Integrated Security=False;Encrypt=False;User Id=admin;Password=admin1234");
+                        var sqlConnection = new SqlConnection(RDSConnectionString);
                         sqlConnection.Open();
 
                         using (var command = sqlConnection.CreateCommand())
@@ -110,25 +114,26 @@ public class Function
                             IsComplete.Direction = ParameterDirection.Input;
                             IsComplete.Value = toDo.IsCompleted;
                             command.Parameters.Add(IsComplete);
-
                             
-                                SqlParameter Owner = new SqlParameter();
-                                Owner.ParameterName = "@Owner";
-                                Owner.SqlDbType = SqlDbType.Int;
-                                Owner.Direction = ParameterDirection.Input;
-                                Owner.Value = toDo.Owner;
-                                command.Parameters.Add(Owner);
+                            SqlParameter Owner = new SqlParameter();
+                            Owner.ParameterName = "@Owner";
+                            Owner.SqlDbType = SqlDbType.Int;
+                            Owner.Direction = ParameterDirection.Input;
+                            Owner.Value = toDo.Owner;
+                            command.Parameters.Add(Owner);
                             
-
-
                             command.ExecuteNonQuery();
 
                             toDo.Id = Convert.ToInt32(Id.Value);
                             sqlConnection.Close();
                         }
                     }
+
+                    await Put(s3Event.Bucket.Name, s3Event.Object.Key, workbook);
                 }
                 context.Logger.LogInformation(response.Headers.ContentType);
+                
+
             }
             catch (Exception e)
             {
@@ -140,34 +145,52 @@ public class Function
         }
     }
 
-    static async Task<String> GetSecret()
+    static async Task<bool> Put(string bucket, string key, XSSFWorkbook workBook)
     {
-        string secretName = "DbSettings";
-        string region = "us-east-1";
-
-        IAmazonSecretsManager client = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(region));
-
-        GetSecretValueRequest request = new GetSecretValueRequest
-        {
-            SecretId = secretName,
-            VersionStage = "AWSCURRENT", // VersionStage defaults to AWSCURRENT if unspecified.
-        };
-
-        GetSecretValueResponse response;
-
         try
         {
-            response = await client.GetSecretValueAsync(request);
+            var S3client = new AmazonS3Client();
+
+            bool Bucket = await AmazonS3Util.DoesS3BucketExistV2Async(S3client, bucket);
+            if (!Bucket)
+            {
+                var bucketRequest = new PutBucketRequest()
+                {
+                    BucketName = bucket,
+                    UseClientRegion = true,
+                };
+
+                await S3client.PutBucketAsync(bucketRequest);
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                ISheet sheet = workBook.GetSheetAt(0);
+                int rowCount = sheet.PhysicalNumberOfRows;
+
+                for (int row = 1; row < rowCount; row++)
+                {
+                    IRow dataRow = sheet.GetRow(row);
+
+                    dataRow.GetCell(1).SetCellValue(dataRow.GetCell(1).ToString() + "Data is being updated") ;
+                }
+                workBook.Write(stream, true);
+                
+                var ObjectRequest = new PutObjectRequest()
+                {
+                    BucketName = bucket,
+                    Key = "Processed_" + key,
+                    InputStream = stream
+                };
+
+                await S3client.PutObjectAsync(ObjectRequest);            
+            }
+            return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            // For a list of the exceptions thrown, see
-            // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-            throw e;
+            Console.WriteLine("Exception in PutS3Object:" + ex.Message);
+            return false;
         }
-
-        string secret = response.SecretString;
-
-        return secret;
     }
 }
