@@ -12,6 +12,13 @@ using System.Text.Json;
 using Amazon.SimpleNotificationService;
 using Amazon.Runtime;
 using Amazon.SimpleNotificationService.Model;
+using Microsoft.Extensions.Options;
+using AWSLambdaAPI.AWS;
+using Entities_ADO.Models;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using System.Reflection.Metadata.Ecma335;
+using AWSLambdaAPI.Models;
 
 namespace AWSLambdaAPI.Controllers
 {
@@ -19,17 +26,17 @@ namespace AWSLambdaAPI.Controllers
     [ApiController]
     public class SQSPushController : ControllerBase
     {
-        public SQSPushController()
+        private readonly AWSSecretsOptions _options;
+
+        public SQSPushController(IOptions<AWSSecretsOptions> options)
         {
-            
+            _options = options.Value;
         }
 
         [HttpPost]
         public async Task Post(IFormFile file)
         {
-            //var SQSClient = new AmazonSQSClient();
-            var credentials = new BasicAWSCredentials("AKIAZWGBV43T4YI2SKTY", "F33Brq0R9zLGsP/vAs71Upx6vJMoCPe/tYA9PJbn");
-
+            var credentials = new BasicAWSCredentials(_options.AccessKey, _options.SecretKey);
             var SNSClient = new AmazonSimpleNotificationServiceClient(credentials, Amazon.RegionEndpoint.USEast1);
 
             var workbook = new XSSFWorkbook(file.OpenReadStream()); // For .xlsx files
@@ -43,6 +50,7 @@ namespace AWSLambdaAPI.Controllers
 
                 var data = new Entities_ADO.Models.ToDo()
                 {
+                    Id = Convert.ToInt32(dataRow.GetCell(0).ToString()),
                     Title = dataRow.GetCell(1).ToString(),
                     IsCompleted = Convert.ToBoolean(dataRow.GetCell(2).ToString()),
                     Owner = Convert.ToInt32(dataRow.GetCell(3).ToString())
@@ -50,20 +58,29 @@ namespace AWSLambdaAPI.Controllers
 
                 var request = new PublishRequest()
                 {
-                    TopicArn = "arn:aws:sns:us-east-1:666126116583:FileUpdateSNS",
+                    TopicArn = _options.SNSARN,
                     Subject = $"Message for {data.Owner}",
                     Message = JsonSerializer.Serialize(data)
                 };
 
-                var response = await SNSClient.PublishAsync(request);
-                //var request = new SendMessageRequest()
-                //{
-                //    QueueUrl = "https://sqs.us-east-1.amazonaws.com/666126116583/ToDosQueue",
-                //    MessageBody = $"Record pushed to SQS for processing for Owner {data.Owner}"
-                //};
-
-                //SQSClient.SendMessageAsync(request); //await removed purposfully
+                SNSClient.PublishAsync(request);
+                
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetToDos()
+        {
+            var credentials = new BasicAWSCredentials(_options.AccessKey, _options.SecretKey);
+            AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
+            DynamoDBContext db = new DynamoDBContext(client);
+
+            var condition = new List<ScanCondition>();
+            var allTodos = db.ScanAsync<ToDos>(condition).GetRemainingAsync().Result;
+
+            var abc = allTodos[0].Owner;
+            return Ok(allTodos);
+
         }
     }
 }

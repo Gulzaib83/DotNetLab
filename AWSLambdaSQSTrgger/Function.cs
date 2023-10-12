@@ -1,5 +1,13 @@
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using Amazon.Runtime;
+using Entities_ADO.Models;
+using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -37,10 +45,31 @@ public class Function
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
-        context.Logger.LogInformation($"Processed message {message.Body}");
+        var mssagePart = JObject.Parse(message.Body)["Message"].ToString();
+        
+        var data = JsonSerializer.Deserialize<Entities_ADO.Models.ToDo>(mssagePart);
 
-        // TODO: Do interesting work based on the new message
+        var credentials = new BasicAWSCredentials("AKIAZWGBV43T4YI2SKTY", "F33Brq0R9zLGsP/vAs71Upx6vJMoCPe/tYA9PJbn");
+        AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
+        string tableName = "ToDos";
+        var request = new PutItemRequest
+        {
+            TableName = tableName,
+            Item = new Dictionary<string, AttributeValue>()
+            {
+                { "Id", new AttributeValue { N = data.Id.ToString() } },
+                { "Title", new AttributeValue { S = data.Title } },
+                { "IsCompleted", new AttributeValue { BOOL = data.IsCompleted ?? false } },
+                //{ "UserId", new AttributeValue { S = data.UserId ?? "" } },
+                { "Owner", new AttributeValue { N = data.Owner?.ToString() ?? "0" } }
+            }
 
+        };
+        context.Logger.LogInformation($"Deserialized data from Topic is {data.Title}");
+
+
+        var response =  await client.PutItemAsync(request);
+        context.Logger.LogInformation($"Response from Dynamo is {response.HttpStatusCode}");
         await Task.CompletedTask;
     }
 }
