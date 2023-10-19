@@ -1,5 +1,7 @@
-var builder = WebApplication.CreateBuilder(args);
+using AWSLambdaWeb.Settings;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<APISettings>();
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();

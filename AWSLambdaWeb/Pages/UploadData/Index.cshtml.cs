@@ -1,3 +1,4 @@
+using AWSLambdaWeb.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
@@ -9,10 +10,12 @@ namespace AWSLambdaWeb.Pages.UploadData
     public class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _clientFactory;
+        private readonly APISettings _settings;
 
-        public IndexModel(IHttpClientFactory clientFactory)
+        public IndexModel(IHttpClientFactory clientFactory, APISettings settings)
         {
             _clientFactory = clientFactory;
+            _settings = settings;
         }
         public void OnGet()
         {
@@ -49,10 +52,10 @@ namespace AWSLambdaWeb.Pages.UploadData
             multipartContent.Add(fileStreamContent);
 
             // Make the POST request with the multipart content.
-            var response = await apiClient.PostAsync("http://beanstalkapplication-env.eba-rvqtwc8f.us-east-1.elasticbeanstalk.com/SQSPush", multipartContent);
+            var response = await apiClient.PostAsync(_settings.ApiBaseUrl, multipartContent);
 
 
-            return RedirectToPage("/ToDos/index");
+            return RedirectToPage("/ShowData/index");
         }
     }
 }

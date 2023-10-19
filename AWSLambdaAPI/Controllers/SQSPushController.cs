@@ -63,7 +63,7 @@ namespace AWSLambdaAPI.Controllers
                     Message = JsonSerializer.Serialize(data)
                 };
 
-                SNSClient.PublishAsync(request);
+               await SNSClient.PublishAsync(request);
                 
             }
         }
@@ -78,7 +78,6 @@ namespace AWSLambdaAPI.Controllers
             var condition = new List<ScanCondition>();
             var allTodos = db.ScanAsync<ToDos>(condition).GetRemainingAsync().Result;
 
-            var abc = allTodos[0].Owner;
             return Ok(allTodos);
 
         }

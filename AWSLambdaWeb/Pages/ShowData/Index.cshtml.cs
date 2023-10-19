@@ -1,4 +1,5 @@
 using AWSLambdaWeb.Models;
+using AWSLambdaWeb.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
@@ -20,10 +21,12 @@ namespace AWSLambdaWeb.Pages.ShowData
         public string CurrentFilter { get; set; }
 
         private readonly IHttpClientFactory _clientFactory;
+        private readonly APISettings _settings;
 
-        public IndexModel(IHttpClientFactory clientFactory)
+        public IndexModel(IHttpClientFactory clientFactory , APISettings settings)
         {
             _clientFactory = clientFactory;
+            _settings = settings;
         }
 
         [BindProperty]
@@ -37,7 +40,7 @@ namespace AWSLambdaWeb.Pages.ShowData
             
             try
             {
-                var response = await apiClient.GetAsync("http://beanstalkapplication-env.eba-rvqtwc8f.us-east-1.elasticbeanstalk.com/SQSPush/");
+                var response = await apiClient.GetAsync(_settings.ApiBaseUrl);
 
                 if (response.IsSuccessStatusCode)
                 {
