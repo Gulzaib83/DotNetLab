@@ -69,7 +69,7 @@ namespace AWSLambdaAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetToDos()
+        public async Task<IActionResult> Get()
         {
             var credentials = new BasicAWSCredentials(_options.AccessKey, _options.SecretKey);
             AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
