@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.Runtime;
+using AWSLambdaSQSTrgger.SecretManager;
 using Entities_ADO.Models;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
@@ -45,13 +46,20 @@ public class Function
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
-        var mssagePart = JObject.Parse(message.Body)["Message"].ToString();
+        var mssagePart = JObject.Parse(message.Body)["Message"]!.ToString();
         
         var data = JsonSerializer.Deserialize<Entities_ADO.Models.ToDo>(mssagePart);
 
-        var credentials = new BasicAWSCredentials("AKIAZWGBV43T4YI2SKTY", "F33Brq0R9zLGsP/vAs71Upx6vJMoCPe/tYA9PJbn");
+        string _accessKey = await AWSSecretManager.GetSecret("AccessKey");
+
+        string _clientSecret = await AWSSecretManager.GetSecret("ClientSecret");
+
+        var credentials = new BasicAWSCredentials(_accessKey, _clientSecret);
+        
         AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
+
         string tableName = "ToDos";
+        
         var request = new PutItemRequest
         {
             TableName = tableName,
@@ -60,7 +68,6 @@ public class Function
                 { "Id", new AttributeValue { N = data.Id.ToString() } },
                 { "Title", new AttributeValue { S = data.Title } },
                 { "IsCompleted", new AttributeValue { BOOL = data.IsCompleted ?? false } },
-                //{ "UserId", new AttributeValue { S = data.UserId ?? "" } },
                 { "Owner", new AttributeValue { N = data.Owner?.ToString() ?? "0" } }
             }
 
