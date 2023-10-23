@@ -1,6 +1,6 @@
 ﻿namespace AWSLambdaAPI.Models
 {
-    public class AWS_ToDo
+    public class ToDos
     {
         public int Id { get; set; }
 
@@ -8,6 +8,6 @@
 
         public bool? IsCompleted { get; set; }
 
-        public int UserId { get; set; }
+        public int Owner { get; set; }
     }
 }

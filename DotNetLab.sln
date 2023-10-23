@@ -21,9 +21,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectionManagement", "Con
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelRead", "ExcelRead\ExcelRead.csproj", "{83426F22-EAC4-4765-91A9-AFB2D870D592}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSLambdaAPI", "AWSLambdaAPI\AWSLambdaAPI.csproj", "{C4DB8C9F-87E4-461A-A5A6-C57F0C2DFEF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSLambdaAPI", "AWSLambdaAPI\AWSLambdaAPI.csproj", "{C4DB8C9F-87E4-461A-A5A6-C57F0C2DFEF8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSLambdaS3Trigger", "AWSLambdaS3Trigger\AWSLambdaS3Trigger.csproj", "{C1A54D42-CB57-45DA-A359-96153D956B75}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackEnd", "BackEnd", "{E5E14360-40CF-4AB8-BB60-9E558F5E4336}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FrontEnd", "FrontEnd", "{2F67E7FE-6B44-43A1-AA7E-E32063BE5A4A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSLambdaSQSTrgger", "AWSLambdaSQSTrgger\AWSLambdaSQSTrgger.csproj", "{0163AF43-19CF-4705-8191-EF412DFF5C71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSLambdaWeb", "AWSLambdaWeb\AWSLambdaWeb.csproj", "{4E446939-0361-4EB2-B379-C81BB565C731}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +83,14 @@ Global
 		{C1A54D42-CB57-45DA-A359-96153D956B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1A54D42-CB57-45DA-A359-96153D956B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1A54D42-CB57-45DA-A359-96153D956B75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0163AF43-19CF-4705-8191-EF412DFF5C71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0163AF43-19CF-4705-8191-EF412DFF5C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0163AF43-19CF-4705-8191-EF412DFF5C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0163AF43-19CF-4705-8191-EF412DFF5C71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E446939-0361-4EB2-B379-C81BB565C731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E446939-0361-4EB2-B379-C81BB565C731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E446939-0361-4EB2-B379-C81BB565C731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E446939-0361-4EB2-B379-C81BB565C731}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

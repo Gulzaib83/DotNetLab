@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.203.1" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.205" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.201.30" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.200.53" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.200.54" />
+    <PackageReference Include="Kralizek.Extensions.Configuration.AWSSecretsManager" Version="1.7.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
     <PackageReference Include="NPOI" Version="2.6.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
